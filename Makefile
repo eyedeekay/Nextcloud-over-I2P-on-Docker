@@ -7,7 +7,7 @@ index:
 	@echo "  <link rel=\"stylesheet\" type=\"text/css\" href =\"home.css\" />" >> index.html
 	@echo "</head>" >> index.html
 	@echo "<body>" >> index.html
-	markdown README.md | tee -a index.html
+	pandoc README.md | tee -a index.html
 	@echo "</body>" >> index.html
 	@echo "</html>" >> index.html
 

@@ -5,128 +5,47 @@
   <link rel="stylesheet" type="text/css" href ="home.css" />
 </head>
 <body>
-<h1>NextCloud over I2P, The Really Really Easy Way</h1>
-
-<p>NextCloud is a tool for self-hosting services associated with many
-so-called "Cloud Services" providers, without requiring the provider itself.
-Cloud services providers participate in dragnet data collection and sharing
-with partners in the surveillance industry, so avoiding the provider is an
-important way of evading mass surveillance. However, it's not always that easy
-to actually pull off.</p>
-
-<h2>What's tricky about it?</h2>
-
-<p>NextCloud makes both incoming <strong>and</strong> outgoing connections, as in, you can visit
-the service and instruct it to make a connection to a remote server somewhere.
-This is a feature, but it's also a risk to privacy because an authorized
-user could make a request to a service they control in order to ascertain
-information about the origin of the request. In this repository is a means of
-configuring a PHP application to use an HTTP Proxy for outgoing connections on a
-global basis, closing this privacy hole and also enabling the NextCloud server to
-fully interact with I2P. It does this by use of a "DockerPort" which is a
-neologism for a Proxy we set up specifically for use by Docker.</p>
-
-<p>Additonally, in order to access your self-hosted services, you usually need to
-have a fixed address somewhere. The easiest way to do this is usually to
-use a <em>cloud services provider</em> somewhere to act as a rendezvous point, and
-forward you to the address where the server actually is. This still requires
-the cloud provider, it still leaks information to the cloud provider. If
-you're brave and lucky, you'll learn to search for terms like "Dynamic DNS"
-and eventually you're doing annoyingly brittle stuff with port forwarding on SOHO
-networking equipment that maybe you remember the password for but you'll probably
-look up in a manual you'll get as a PDF from the internet and worry, knowingly, 
-at the implications of that. Because you know you didn't change that. In a year or
-two your hobby will lead you to something called a "DHT" and you'll think "Dude
-that sounds kind of complicated to get set up but once it's there that would be a
-way better way to do this. All I'd need is a hosts file."*</p>
-
-<p>Hi. We're I2P. We've been doing this for a while. You can use ours.</p>
-
-<h2>Requirements:</h2>
-
+<h1 id="nextcloud-over-i2p-the-really-really-easy-way">NextCloud over I2P, The Really Really Easy Way</h1>
+<p>NextCloud is a tool for self-hosting services associated with many so-called “Cloud Services” providers, without requiring the provider itself. Cloud services providers participate in dragnet data collection and sharing with partners in the surveillance industry, so avoiding the provider is an important way of evading mass surveillance. However, it’s not always that easy to actually pull off.</p>
+<h2 id="whats-tricky-about-it">What’s tricky about it?</h2>
+<p>NextCloud makes both incoming <strong>and</strong> outgoing connections, as in, you can visit the service and instruct it to make a connection to a remote server somewhere. This is a feature, but it’s also a risk to privacy because an authorized user could make a request to a service they control in order to ascertain information about the origin of the request. In this repository is a means of configuring a PHP application to use an HTTP Proxy for outgoing connections on a global basis, closing this privacy hole and also enabling the NextCloud server to fully interact with I2P. It does this by use of a “DockerPort” which is a neologism for a Proxy we set up specifically for use by Docker.</p>
+<p>Additonally, in order to access your self-hosted services, you usually need to have a fixed address somewhere. The easiest way to do this is usually to use a <em>cloud services provider</em> somewhere to act as a rendezvous point, and forward you to the address where the server actually is. This still requires the cloud provider, it still leaks information to the cloud provider. If you’re brave and lucky, you’ll learn to search for terms like “Dynamic DNS” and eventually you’re doing annoyingly brittle stuff with port forwarding on SOHO networking equipment that maybe you remember the password for but you’ll probably look up in a manual you’ll get as a PDF from the internet and worry, knowingly, at the implications of that. Because you know you didn’t change that. In a year or two your hobby will lead you to something called a “DHT” and you’ll think “Dude that sounds kind of complicated to get set up but once it’s there that would be a way better way to do this. All I’d need is a hosts file.”*</p>
+<p>Hi. We’re I2P. We’ve been doing this for a while. You can use ours.</p>
+<h2 id="requirements">Requirements:</h2>
 <ul>
-<li><strong>Docker</strong> - Because this procedure uses Docker, it is possible to host NextCloud on most
-host operating systems.</li>
-<li><strong>An I2P Distribution</strong> - Any I2P will do, but this guide will supply screenshots from Java
-I2P.</li>
+<li><strong>Docker</strong> - Because this procedure uses Docker, it is possible to host NextCloud on most host operating systems.</li>
+<li><strong>An I2P Distribution</strong> - Any I2P will do, but this guide will supply screenshots from Java I2P.</li>
 </ul>
-
-<h2>Step One: Run Nextcloud in a container</h2>
-
-<p>This repository contains a Dockerfile which configures NextCloud for I2P using
-a DockerPort which is on port <code>4448</code>. You can change this option by passing the
-environment variable <code>http_proxy=</code> at run time. On Linux and OSX, build the 
-container by cloning this reposity and running docker build in your <code>sh</code>. On
-Windows, do the same thing, except in <code>powershell</code>.</p>
-
+<h2 id="step-one-run-nextcloud-in-a-container">Step One: Run Nextcloud in a container</h2>
+<p>This repository contains a Dockerfile which configures NextCloud for I2P using a DockerPort which is on port <code>4448</code>. You can change this option by passing the environment variable <code>http_proxy=</code> at run time. On Linux and OSX, build the container by cloning this reposity and running docker build in your <code>sh</code>. On Windows, do the same thing, except in <code>powershell</code>.</p>
 <p>Clone the repository using:</p>
-
-<p><code>sh
-git clone https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker nextcloud-i2p
-</code></p>
-
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="fu">git</span> clone https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker nextcloud-i2p</span></code></pre></div>
 <p>Then, change to the directory you just cloned using:</p>
-
-<p><code>sh
-cd nextcloud-i2p
-</code></p>
-
-<p><strong>This is the most important part.</strong> Create a file named <code>.env</code> inside of <code>nextcloud-i2p</code>
-directory. It should contain at least:</p>
-
-<p><code>sh
-NEXTCLOUD_ADMIN_USER=anonadmin            ## The administrative username you want to use
-    ## when you log into your NextCloud server
-NEXTCLOUD_ADMIN_PASSWORD=examplepassword  ## The administrative username you want to use
-    ## when you log into your NextCloud server
-</code></p>
-
-<p>All of the other settings from <a href="https://hub.docker.com/_/nextcloud/"><code>https://hub.docker.com/_/nextcloud/</code></a>
-will continue to work as well, in case you want to configure a MySQL database in order
-to accomodate a larger number of users.</p>
-
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="bu">cd</span> nextcloud-i2p</span></code></pre></div>
+<p><strong>This is the most important part.</strong> Create a file named <code>.env</code> inside of <code>nextcloud-i2p</code> directory. It should contain at least:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="va">NEXTCLOUD_ADMIN_USER=</span>anonadmin            ## <span class="ex">The</span> administrative username you want to use</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="co">## when you log into your NextCloud server</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="va">NEXTCLOUD_ADMIN_PASSWORD=</span>examplepassword  ## <span class="ex">The</span> administrative username you want to use</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    <span class="co">## when you log into your NextCloud server</span></span></code></pre></div>
+<p>All of the other settings from <a href="https://hub.docker.com/_/nextcloud/"><code>https://hub.docker.com/_/nextcloud/</code></a> will continue to work as well, in case you want to configure a MySQL database in order to accomodate a larger number of users.</p>
 <p>Build the repository using:</p>
-
-<p><code>sh
-docker build -t nextcloud-i2p .
-</code></p>
-
-<p>Now you're ready to run:</p>
-
-<p><code>sh
-docker run -d --restart=always \
-    -p 127.0.0.1:8080:80 \
-    -v nextcloud:/var/www/html \
-    --env-file .env
-    --name nextcloud-i2p nextcloud-i2p
-</code></p>
-
-<p>Your container is now running, but not accessible remotely yet, and it's also protected by
-a password.</p>
-
-<h2>Step Two: Create an I2P "DockerPort"</h2>
-
-<p>Nextcloud isn't able to make connections to I2P Sites yet, because there isn't a
-DockerPort for it to use yet. To create one, go to <a href="http://127.0.0.1:7657/i2ptunnelmgr">Hidden Services Manager</a>
-and create an <code>HTTP/CONNECT</code> client. Configure it to be accessible on the
-<strong>Docker Bridge</strong> which is usually going to be on the address <code>172.17.0.1</code>, and
-on the port <code>4448</code>. No other changes are required, but you may wish to fine-tune them
-to your liking.</p>
-
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ex">docker</span> build -t nextcloud-i2p .</span></code></pre></div>
+<p>Now you’re ready to run:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="ex">docker</span> run -d --restart=always <span class="kw">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    <span class="ex">-p</span> 127.0.0.1:8080:80 <span class="kw">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="ex">-v</span> nextcloud:/var/www/html <span class="kw">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    <span class="ex">--env-file</span> .env</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    <span class="ex">--name</span> nextcloud-i2p nextcloud-i2p</span></code></pre></div>
+<p>Your container is now running, but not accessible remotely yet, and it’s also protected by a password.</p>
+<h2 id="step-two-create-an-i2p-dockerport">Step Two: Create an I2P “DockerPort”</h2>
+<p>Nextcloud isn’t able to make connections to I2P Sites yet, because there isn’t a DockerPort for it to use yet. To create one, go to <a href="http://127.0.0.1:7657/i2ptunnelmgr">Hidden Services Manager</a> and create an <code>HTTP/CONNECT</code> client. Configure it to be accessible on the <strong>Docker Bridge</strong> which is usually going to be on the address <code>172.17.0.1</code>, and on the port <code>4448</code>. No other changes are required, but you may wish to fine-tune them to your liking.</p>
 <ul>
-<li><img src="DockerPort.png" alt="Example Configuration" title="" /></li>
+<li><img src="DockerPort.png" title="fig:" alt="Example Configuration" /></li>
 </ul>
-
-<h2>Step Three: Create an I2P Server Tunnel</h2>
-
-<p>Now you're ready to make your I2P NextCloud service available over I2P. Go back to
-<a href="http://127.0.0.1:7657/i2ptunnelmgr">Hidden Services Manager</a> and this time, create
-a <code>HTTP Server</code>. Configure it to forward <code>127.0.0.1:8080</code> to the I2P network, give
-it a hostname, and save it. You may wish to fine-tune these setting as well, but
-the defaults are safe for most people.</p>
-
+<h2 id="step-three-create-an-i2p-server-tunnel">Step Three: Create an I2P Server Tunnel</h2>
+<p>Now you’re ready to make your I2P NextCloud service available over I2P. Go back to <a href="http://127.0.0.1:7657/i2ptunnelmgr">Hidden Services Manager</a> and this time, create a <code>HTTP Server</code>. Configure it to forward <code>127.0.0.1:8080</code> to the I2P network, give it a hostname, and save it. You may wish to fine-tune these setting as well, but the defaults are safe for most people.</p>
 <ul>
-<li><img src="DockerServer.png" alt="Example Configuration" title="" /></li>
+<li><img src="DockerServer.png" title="fig:" alt="Example Configuration" /></li>
 </ul>
 </body>
 </html>
