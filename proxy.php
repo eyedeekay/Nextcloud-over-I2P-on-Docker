@@ -2,7 +2,12 @@
 
 $proxy = getenv('http_proxy');
 
-if (!empty($proxy)) {
+if ($proxy) {
+  $CONFIG['proxy'] = $proxy;
+}
+
+
+/*if (!empty($proxy)) {
 
     $proxy = str_replace('http://', 'tcp://', $proxy);
 
@@ -22,4 +27,4 @@ if (!empty($proxy)) {
     stream_context_set_default($context);
 } else {
     echo "Proxy not found" . PHP_EOL;
-}
+}*/
