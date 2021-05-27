@@ -62,7 +62,7 @@ Windows, do the same thing, except in <code>powershell</code>.</p>
 <p>Clone the repository using:</p>
 
 <p><code>sh
-git clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker nextcloud-i2p
+git clone https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker nextcloud-i2p
 </code></p>
 
 <p>Then, change to the directory you just cloned using:</p>
@@ -97,6 +97,7 @@ docker build -t nextcloud-i2p .
 docker run -d --restart=always \
     -p 127.0.0.1:8080:80 \
     -v nextcloud:/var/www/html \
+    --env-file .env
     --name nextcloud-i2p nextcloud-i2p
 </code></p>
 
