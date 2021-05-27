@@ -73,8 +73,7 @@ ul {
 li {
   margin-left: 0;
   padding: 12px 15px 15px 20px;
-  /*width: calc(100% - 40px);*/
-  width: 50%;
+  width: calc(100% - 40px);
   text-align: justify;
   border: 1px solid #9ab;
   border-radius: 2px;
@@ -84,8 +83,7 @@ li {
 
 li li {
   padding-bottom: 0;
-  /*width: calc(100% - 40px);*/
-  width: 50%;
+  width: calc(100% - 40px);
   text-align: left;
   border: none;
   border-top: 1px solid #9ab;
@@ -95,13 +93,11 @@ li li {
 li li:first-of-type {
   margin-top: 15px;
   border-top: none;
-  width: 50%;
 }
 
 li a:first-of-type {
   display: block;
-  /*width: 100%;*/
-  width: 50%;
+  width: 100%;
 }
 
 #applicationExplain {
@@ -333,10 +329,6 @@ button {
 
 img {
   max-width: 100%;
-  width: 40%;
-  padding: 4%;
-  padding-top: 0px;
-  float: right;
 }
 
 img.readyness {
@@ -356,6 +348,6 @@ img.readyness {
   }
 }
 
-sub {
-  float: right;
+video {
+  width: 100%
 }
