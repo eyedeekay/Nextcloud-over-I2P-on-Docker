@@ -56,20 +56,20 @@ Windows, do the same thing, except in `powershell`.
 
 Clone the repository using:
 
-``` sh
+```sh
 git clone https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker nextcloud-i2p
 ```
 
 Then, change to the directory you just cloned using:
 
-``` sh
+```sh
 cd nextcloud-i2p
 ```
 
 **This is the most important part.** Create a file named `.env` inside of `nextcloud-i2p`
 directory. It should contain at least:
 
-``` sh
+```sh
 NEXTCLOUD_ADMIN_USER=anonadmin            ## The administrative username you want to use
     ## when you log into your NextCloud server
 NEXTCLOUD_ADMIN_PASSWORD=examplepassword  ## The administrative username you want to use
@@ -82,13 +82,13 @@ to accomodate a larger number of users.
 
 Build the repository using:
 
-``` sh
+```sh
 docker build -t nextcloud-i2p .
 ```
 
 Now you're ready to run:
 
-``` sh
+```sh
 docker run -d --restart=always \
     -p 127.0.0.1:8080:80 \
     -v nextcloud:/var/www/html \
