@@ -66,7 +66,7 @@ Then, change to the directory you just cloned using:
 cd nextcloud-i2p
 ```
 
-**This is the most important part.** Create a file named .env inside of `nextcloud-i2p`
+**This is the most important part.** Create a file named `.env` inside of `nextcloud-i2p`
 directory. It should contain at least:
 
 ``` sh
