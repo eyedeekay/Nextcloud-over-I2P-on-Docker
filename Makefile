@@ -10,3 +10,11 @@ index:
 	markdown README.md | tee -a index.html
 	@echo "</body>" >> index.html
 	@echo "</html>" >> index.html
+
+auto:
+	docker build -t nextcloud-i2p .
+	docker run -d --restart=always \
+	    -p 127.0.0.1:8080:80 \
+	    -v nextcloud:/var/www/html \
+	    --env-file .env
+	    --name nextcloud-i2p nextcloud-i2p

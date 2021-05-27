@@ -19,7 +19,6 @@ if (!empty($proxy)) {
         "verify_peer_name"=>false
         )
     );
-//    curl_setopt($handle, CURLOPT_PROXY, $proxy);
     stream_context_set_default($context);
 } else {
     echo "Proxy not found" . PHP_EOL;

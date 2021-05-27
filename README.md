@@ -92,6 +92,7 @@ Now you're ready to run:
 docker run -d --restart=always \
     -p 127.0.0.1:8080:80 \
     -v nextcloud:/var/www/html \
+    --env-file .env
     --name nextcloud-i2p nextcloud-i2p
 ```
 
