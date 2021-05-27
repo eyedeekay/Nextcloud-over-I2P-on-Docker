@@ -35,7 +35,7 @@ two your hobby will lead you to something called a "DHT" and you'll think "Dude
 that sounds kind of complicated to get set up but once it's there that would be a
 way better way to do this. All I'd need is a hosts file."\*
 
-Hi. We're I2P. We've been doing this for a while. You can use ours.
+Hi. Welcome to I2P. We've been doing this for a while. You can use ours.
 
 Requirements:
 -------------
