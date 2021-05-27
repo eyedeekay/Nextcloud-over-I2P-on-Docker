@@ -57,7 +57,7 @@ Windows, do the same thing, except in `powershell`.
 Clone the repository using:
 
 ``` sh
-git clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker nextcloud-i2p
+git clone https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker nextcloud-i2p
 ```
 
 Then, change to the directory you just cloned using:
