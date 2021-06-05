@@ -27,7 +27,7 @@ uninstall:
 	./uninstall.sh
 
 client-index:
-	@echo "<!DOCTYPE html>" client.html
+	@echo "<!DOCTYPE html>" > client.html
 	@echo "<html>" >> client.html
 	@echo "<head>" >> client.html
 	@echo "  <title>NextCloud Desktop I2P</title>" >> client.html
