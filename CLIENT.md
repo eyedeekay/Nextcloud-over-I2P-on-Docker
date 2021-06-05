@@ -282,8 +282,9 @@ if not %errorlevel% == 0 (
 )
 ```
 
-And it will place your config files. Likewise, to uninstall, you can use
-`uninstall.bat`.
+And it will place your config files. After running the script for the first
+time, re-start I2P to make the NextCloud client proxy available. Likewise, to
+uninstall, you can use `uninstall.bat`.
 
 ```batch
 del %LOCALAPPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config %APPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config %APPDATA%\Nextcloud\nextcloud.cfg
