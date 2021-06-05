@@ -20,10 +20,21 @@ it to others as the case may be.
 TL:DR
 =====
 
-On Linux or OSX:
+#### Dependencies
+
+[Nextcloud Desktop](https://nextcloud.com/install/#install-clients), [Git](https://git-scm.com)(OSX and Linux only)
+
+**Ubuntu, Debian**
 
 ```bash
 sudo apt-get install nextcloud-desktop git
+```
+
+#### Procedure
+
+On Linux or OSX:
+
+```bash
 git clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker
 cd Nextcloud-over-I2P-with-Docker
 make install
@@ -34,6 +45,7 @@ On Windows(WIP):
  - Download: [This file:](https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker/archive/refs/heads/main.zip)
  - Unzip it
  - Double-click `install.bat`
+ - Restart I2P
 
 Locating your Configuration File*
 ---------------------------------
@@ -245,4 +257,39 @@ and OSX.
 
 Windows(WIP)
 ------------
+
+It should also be easy to install on Windows. An equivalent script is tricky
+to write so it will work on all versions of Windows, so here we need to
+rely on the user to re-start the I2P Router if necessary. On Windows, we can
+run the `install.bat` script by double-clicking:
+
+```batch
+if exist %LOCALAPPDATA%\I2P\i2ptunnel.config.d\ (
+  xcopy /s /i /y Nextcloud-HTTP-Proxy.config %LOCALAPPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config
+) else (
+  echo No
+)
+
+if exist %APPDATA%\I2P\i2ptunnel.config.d\ (
+  xcopy /s /i /y Nextcloud-HTTP-Proxy.config %APPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config
+) else (
+  echo No
+)
+
+findstr /c:7671 %APPDATA%\Nextcloud\nextcloud.cfg
+if not %errorlevel% == 0 (
+  xcopy /s /i /y nextcloud.cfg %APPDATA%\Nextcloud\nextcloud.cfg
+)
+```
+
+And it will place your config files. Likewise, to uninstall, you can use
+`uninstall.bat`.
+
+```batch
+del %LOCALAPPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config %APPDATA%\I2P\i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config %APPDATA%\Nextcloud\nextcloud.cfg
+```
+
+You can get the `install.bat` and `uninstall.bat` scripts by downloading
+the source of this repository as a zip [from here](https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker/archive/refs/heads/main.zip).
+Extract it, then run the scripts from the extracted directory.
 
