@@ -175,3 +175,172 @@
 <p>Windows(WIP)</p>
 </body>
 </html>
+<html>
+<head>
+  <title>NextCloud Desktop I2P</title>
+  <link rel="stylesheet" type="text/css" href ="home.css" />
+</head>
+<body>
+<h1 id="configuring-your-nextcloud-client-for-i2p">Configuring your NextCloud Client for I2P</h1>
+<p><strong>This is a guide for configuring NextCloud Desktop to use</strong> <strong>I2P at all times. It will clear your existing NextCloud</strong> <strong>settings and pre-configure your client to use I2P.</strong></p>
+<p>This is a guide for configuring Nextcloud Clients. To set up your own hidden NextCloud server, check out <a href="index.html">the setup guide</a>.</p>
+<p>NextCloud Desktop provides convenient options for configuring an <code>HTTP</code> or <code>SOCKS5</code> proxy by passing flags at the terminal, setting it up via the GUI, or by making alterations to a configuration file. I prefer to make alterations to the configuration file, so that all the changes are made before I ever need to run NextCloud, and so that I can keep it conveniently packaged and configure it on multiple systems, or even redistribute it to others as the case may be.</p>
+<h1 id="tldr">TL:DR</h1>
+<p>On Linux or OSX:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="fu">sudo</span> apt-get install nextcloud-desktop git</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="fu">git</span> clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="bu">cd</span> Nextcloud-over-I2P-with-Docker</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="fu">make</span> install</span></code></pre></div>
+<p>On Windows(WIP):</p>
+<ul>
+<li>Download: <a href="https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker/archive/refs/heads/main.zip">This file:</a></li>
+<li>Unzip it</li>
+<li>Double-click <code>install.bat</code></li>
+</ul>
+<h2 id="locating-your-configuration-file">Locating your Configuration File*</h2>
+<p>The Nextcloud Client reads a configuration file. You can locate this configuration file as follows:</p>
+<p><strong>On Linux distributions:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="va">$HOME</span><span class="ex">/.config/Nextcloud/nextcloud.cfg</span></span></code></pre></div>
+<p><strong>On Microsoft Windows systems:</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>%APPDATA%\Nextcloud\nextcloud.<span class="fu">cfg</span></span></code></pre></div>
+<p><strong>On macOS systems:</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="va">$HOME</span><span class="ex">/Library/Preferences/Nextcloud/nextcloud.cfg</span> </span></code></pre></div>
+<p>*Literally copied wholesale from here: <a href="https://docs.nextcloud.com/desktop/2.6/advancedusage.html">Advanced Usage</a> because NextCloud Client is very conveniently documented.</p>
+<h2 id="making-the-changes">Making the Changes</h2>
+<p>If you are running your own NextCloud service, it is fine to use the HTTP Proxy at <code>127.0.0.1:4444</code>. Simply add the following lines to your <code>nextcloud.cfg</code> file as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ini"><code class="sourceCode ini"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">[Proxy]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="dt">host</span><span class="ot">=</span><span class="dv">127</span><span class="st">.</span><span class="dv">0</span><span class="st">.</span><span class="fl">0.1</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="dt">needsAuth</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="dt">port</span><span class="ot">=</span><span class="dv">4444</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="dt">type</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="dt">user</span><span class="ot">=</span></span></code></pre></div>
+<p>However, if you are using someone else’s NextCloud service, or are connecting to many NextCloud services at the same time, you may want to set up an HTTP Proxy just for NextCloud. Follow the <a href="https://eyedeekay.github.io/HTTP-Proxy-For-Your-Application">HTTP Proxy Setup Instructions</a>, to set up a new HTTP Proxy tunnel, and alter the configuration above to match your chosen port.</p>
+<h2 id="packaging-it">Packaging it?</h2>
+<p>That’s all fine, but can we do even better? I think so. What we need to completely pre-configure NextCloud-over-I2P on the client side are two files. One is the <code>nextcloud.cfg</code> file which we’ve already discussed, and the other will go into <code>i2ptunnel.config.d</code>. We’ll make this all happen automatically. On Linux, we’ll use a shell script to check if the files are already set up and automatically re-start the I2P router.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">#! /usr/bin/env sh</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="co">## First, we need to find the I2P Router we will need to restart</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co">## after the install</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="ot">-z</span> <span class="va">$I2PROUTER</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>  <span class="va">I2PROUTER=$(</span><span class="fu">which</span> i2prouter<span class="va">)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="ot">-z</span> <span class="va">$I2PROUTER</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>  <span class="bu">test</span> <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/i2p/i2prouter&quot;</span> <span class="kw">&amp;&amp;</span> <span class="va">I2PROUTER=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/i2p/i2prouter&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="ot">-z</span> <span class="va">$I2PROUTER</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>  <span class="bu">test</span> <span class="st">&quot;/usr/sbin/i2prouter&quot;</span> <span class="kw">&amp;&amp;</span> <span class="va">DEBIAN=</span><span class="st">&quot;yes&quot;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a><span class="co">## End I2P Router Discovery Phase</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a><span class="co">## Check the platform, set NEXTCLOUD_CONFIG variable to Linux</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a><span class="co">## or OSX location</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a><span class="fu">uname</span> -a <span class="kw">|</span> <span class="fu">grep</span> -i darwin <span class="kw">&amp;&amp;</span> <span class="va">NEXTCLOUD_CONFIG=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/Library/Preferences/Nextcloud/nextcloud.cfg&quot;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a><span class="fu">uname</span> -a <span class="kw">|</span> <span class="fu">grep</span> -i linux <span class="kw">&amp;&amp;</span> <span class="va">NEXTCLOUD_CONFIG=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.config/Nextcloud/nextcloud.cfg&quot;</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a><span class="co">## End platform discovery section</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a><span class="co">## Check if the I2P proxy is configured by looking for the </span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a><span class="co">## port number in the NextCloud default configuration. Only</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true"></a><span class="co">## copy if it&#39;s not found.</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true"></a><span class="fu">grep</span> 7671 <span class="st">&quot;</span><span class="va">$NEXTCLOUD_CONFIG</span><span class="st">&quot;</span> <span class="kw">||</span> <span class="fu">cp</span> nextcloud.cfg <span class="st">&quot;</span><span class="va">$NEXTCLOUD_CONFIG</span><span class="st">&quot;</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a><span class="co">## Check if the Nextcloud HTTP Proxy is already set up.</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true"></a><span class="co">## If it isn&#39;t present, copy it over. If it needs to be</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true"></a><span class="co">## copied, restart the router at the end of the script.</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="st">&quot;</span><span class="va">$DEBIAN</span><span class="st">&quot;</span> <span class="ot">=</span> yes<span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true"></a>  <span class="fu">sudo</span> cp Nextcloud-HTTP-Proxy.config /var/lib/i2p/i2p-config/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true"></a><span class="kw">else</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true"></a>  <span class="bu">test</span> <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.i2p/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config&quot;</span> <span class="kw">||</span> <span class="va">RESTART=</span>yes</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true"></a>  <span class="bu">test</span> <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.i2p/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config&quot;</span> <span class="kw">||</span> <span class="fu">cp</span> Nextcloud-HTTP-Proxy.config <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.i2p/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config&quot;</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true"></a><span class="co">## End of Install section.</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true"></a><span class="co">## If the config file hasn&#39;t been copied previously, or if</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true"></a><span class="co">## proxy.i2p isn&#39;t reachable over the proxy, perform a restart.</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true"></a><span class="va">http_proxy=</span>http://127.0.0.1:7671 <span class="ex">curl</span> http://proxy.i2p <span class="kw">||</span> <span class="va">RESTART=</span>yes</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true"></a><span class="va">http_proxy=</span>http://127.0.0.1:7671 <span class="ex">curl</span> http://proxy.i2p <span class="kw">&amp;&amp;</span> <span class="va">RESTART=</span>no</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="st">&quot;</span><span class="va">$RESTART</span><span class="st">&quot;</span> <span class="ot">=</span> <span class="st">&quot;yes&quot;</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true"></a>  <span class="kw">if</span><span class="bu"> [</span> <span class="st">&quot;</span><span class="va">$DEBIAN</span><span class="st">&quot;</span> <span class="ot">=</span> <span class="st">&quot;yes&quot;</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true"></a>    <span class="fu">sudo</span> service i2p restart</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true"></a>  <span class="kw">else</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true"></a>    <span class="va">$I2PROUTER</span> <span class="ex">graceful</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true"></a>    <span class="fu">sleep</span> 15s</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true"></a>    <span class="va">$I2PROUTER</span> <span class="ex">start</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true"></a>  <span class="kw">fi</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true"></a><span class="co">## End restart section</span></span></code></pre></div>
+<p>Since we’re only changing configuration files in the user’s $HOME, it will not require root unless I2P is running as a system service.</p>
+<p>And an accompanying un-install script.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="co">#! /usr/bin/env sh</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="co">## We only need to know if we&#39;re on Debian to uninstall</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="ot">-z</span> <span class="va">$I2PROUTER</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>  <span class="bu">test</span> <span class="st">&quot;/usr/sbin/i2prouter&quot;</span> <span class="kw">&amp;&amp;</span> <span class="va">DEBIAN=</span><span class="st">&quot;yes&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">## End of router discovery section</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">## Discover the platform, set NEXTCLOUD_CONFIG</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="fu">uname</span> -a <span class="kw">|</span> <span class="fu">grep</span> -i darwin <span class="kw">&amp;&amp;</span> <span class="va">NEXTCLOUD_CONFIG=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/Library/Preferences/Nextcloud/nextcloud.cfg&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="fu">uname</span> -a <span class="kw">|</span> <span class="fu">grep</span> -i linux <span class="kw">&amp;&amp;</span> <span class="va">NEXTCLOUD_CONFIG=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.config/Nextcloud/nextcloud.cfg&quot;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="co">## End of platform discovery section</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a><span class="co">## Remove the files</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a><span class="kw">if</span><span class="bu"> [</span> <span class="va">$DEBIAN</span> <span class="ot">=</span> <span class="st">&quot;yes&quot;</span><span class="bu"> ]</span>; <span class="kw">then</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>  <span class="fu">sudo</span> rm -f <span class="st">&quot;</span><span class="va">$NEXTCLOUD_CONFIG</span><span class="st">&quot;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>  <span class="fu">sudo</span> rm -f <span class="st">&quot;/var/lib/i2p/i2p-config/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config&quot;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a><span class="kw">else</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a>  <span class="fu">rm</span> -f <span class="st">&quot;</span><span class="va">$NEXTCLOUD_CONFIG</span><span class="st">&quot;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a>  <span class="fu">rm</span> -f <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/.i2p/i2ptunnel.config.d/Nextcloud-HTTP-Proxy.config&quot;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a><span class="kw">fi</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a><span class="co">## end of uninstall section.</span></span></code></pre></div>
+<p>After reviewing the configuration files:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode ini"><code class="sourceCode ini"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">[Proxy]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="dt">host</span><span class="ot">=</span><span class="dv">127</span><span class="st">.</span><span class="dv">0</span><span class="st">.</span><span class="fl">0.1</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a><span class="dt">needsAuth</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="dt">port</span><span class="ot">=</span><span class="dv">7671</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="dt">type</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a><span class="dt">user</span><span class="ot">=</span></span></code></pre></div>
+<p>and</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ini"><code class="sourceCode ini"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="dt">description</span><span class="ot">=</span><span class="st">HTTP proxy for using Nexcloud</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="dt">i2cpHost</span><span class="ot">=</span><span class="dv">127</span><span class="st">.</span><span class="dv">0</span><span class="st">.</span><span class="fl">0.1</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="dt">i2cpPort</span><span class="ot">=</span><span class="dv">7654</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="dt">interface</span><span class="ot">=</span><span class="dv">127</span><span class="st">.</span><span class="dv">0</span><span class="st">.</span><span class="fl">0.1</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="dt">listenPort</span><span class="ot">=</span><span class="dv">7671</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="dt">name</span><span class="ot">=</span><span class="st">I2P HTTP Proxy</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="dt">option.i2cp.closeIdleTime</span><span class="ot">=</span><span class="dv">1800000</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="dt">option.i2cp.closeOnIdle</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="dt">option.i2cp.destination.sigType</span><span class="ot">=</span><span class="dv">7</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="dt">option.i2cp.leaseSetEncType</span><span class="ot">=</span><span class="dv">4</span><span class="st">,</span><span class="dv">0</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="dt">option.i2cp.newDestOnResume</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="dt">option.i2cp.reduceIdleTime</span><span class="ot">=</span><span class="dv">900000</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="dt">option.i2cp.reduceOnIdle</span><span class="ot">=</span><span class="kw">true</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a><span class="dt">option.i2cp.reduceQuantity</span><span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a><span class="dt">option.i2p.streaming.connectDelay</span><span class="ot">=</span><span class="dv">1000</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a><span class="dt">option.i2ptunnel.httpclient.SSLOutproxies</span><span class="ot">=</span><span class="kw">false</span><span class="st">.i2p</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a><span class="dt">option.inbound.backupQuantity</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a><span class="dt">option.inbound.length</span><span class="ot">=</span><span class="dv">2</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a><span class="dt">option.inbound.lengthVariance</span><span class="ot">=</span><span class="dv">0</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a><span class="dt">option.inbound.nickname</span><span class="ot">=</span><span class="st">shared clients</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a><span class="dt">option.inbound.quantity</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a><span class="dt">option.outbound.backupQuantity</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a><span class="dt">option.outbound.length</span><span class="ot">=</span><span class="dv">2</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a><span class="dt">option.outbound.lengthVariance</span><span class="ot">=</span><span class="dv">0</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true"></a><span class="dt">option.outbound.nickname</span><span class="ot">=</span><span class="st">shared clients</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true"></a><span class="dt">option.outbound.priority</span><span class="ot">=</span><span class="dv">10</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true"></a><span class="dt">option.outbound.quantity</span><span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true"></a><span class="dt">option.persistentClientKey</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true"></a><span class="dt">privKeyFile</span><span class="ot">=</span><span class="st">nextcloud-privKeys.dat</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true"></a><span class="dt">proxyList</span><span class="ot">=</span><span class="kw">false</span><span class="st">.i2p</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true"></a><span class="dt">sharedClient</span><span class="ot">=</span><span class="kw">false</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true"></a><span class="dt">startOnLoad</span><span class="ot">=</span><span class="kw">true</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true"></a><span class="dt">type</span><span class="ot">=</span><span class="st">httpclient</span></span></code></pre></div>
+<p>You can install, very simply, by running the scripts in this repository, like so:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="fu">sudo</span> apt-get install nextcloud-desktop git</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="fu">git</span> clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="bu">cd</span> Nextcloud-over-I2P-with-Docker</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="fu">make</span> install</span></code></pre></div>
+<p>Voila, automatic NextCloud server configuration which works well on Linux and OSX.</p>
+<h2 id="windowswip">Windows(WIP)</h2>
+</body>
+</html>
