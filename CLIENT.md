@@ -20,7 +20,7 @@ it to others as the case may be.
 TL:DR
 =====
 
-#### Dependencies
+### Dependencies
 
 [Nextcloud Desktop](https://nextcloud.com/install/#install-clients), [Git](https://git-scm.com)(OSX and Linux only)
 
@@ -30,9 +30,9 @@ TL:DR
 sudo apt-get install nextcloud-desktop git
 ```
 
-#### Procedure
+### Procedure
 
-On Linux or OSX:
+**On Linux or OSX:**
 
 ```bash
 git clone https://github.com/eyedeekay/Nextcloud-over-I2P-with-Docker
@@ -40,7 +40,7 @@ cd Nextcloud-over-I2P-with-Docker
 make install
 ```
 
-On Windows(WIP):
+**On Windows(WIP):**
 
  - Download: [This file:](https://github.com/eyedeekay/Nextcloud-over-I2P-on-Docker/archive/refs/heads/main.zip)
  - Unzip it
