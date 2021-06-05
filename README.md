@@ -1,6 +1,9 @@
 NextCloud over I2P, The Really Really Easy Way
 ==============================================
 
+This is a guide for configuring NextCloud Servers. To set up
+your own hidden NextCloud client, check out [the client guide](client.html).
+
 NextCloud is a tool for self-hosting services associated with many
 so-called "Cloud Services" providers, without requiring the provider itself.
 Cloud services providers participate in dragnet data collection and sharing

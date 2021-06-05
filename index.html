@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1 id="nextcloud-over-i2p-the-really-really-easy-way">NextCloud over I2P, The Really Really Easy Way</h1>
+<p>This is a guide for configuring NextCloud Servers. To set up your own hidden NextCloud client, check out <a href="client.html">the client guide</a>.</p>
 <p>NextCloud is a tool for self-hosting services associated with many so-called “Cloud Services” providers, without requiring the provider itself. Cloud services providers participate in dragnet data collection and sharing with partners in the surveillance industry, so avoiding the provider is an important way of evading mass surveillance. However, it’s not always that easy to actually pull off.</p>
 <h2 id="whats-tricky-about-it">What’s tricky about it?</h2>
 <p>NextCloud makes both incoming <strong>and</strong> outgoing connections, as in, you can visit the service and instruct it to make a connection to a remote server somewhere. This is a feature, but it’s also a risk to privacy because an authorized user could make a request to a service they control in order to ascertain information about the origin of the request. In this repository is a means of configuring a PHP application to use an HTTP Proxy for outgoing connections on a global basis, closing this privacy hole and also enabling the NextCloud server to fully interact with I2P. It does this by use of a “DockerPort” which is a neologism for a Proxy we set up specifically for use by Docker.</p>

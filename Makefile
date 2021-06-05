@@ -1,5 +1,5 @@
 
-index:
+index: client-index
 	@echo "<!DOCTYPE html>" > index.html
 	@echo "<html>" >> index.html
 	@echo "<head>" >> index.html
@@ -19,3 +19,21 @@ auto:
 	    -v nextcloud:/var/www/html \
 	    --env-file .env \
 	    --name nextcloud-i2p nextcloud-i2p
+
+install:
+	./install.sh
+
+uninstall:
+	./uninstall.sh
+
+client-index:
+	@echo "<!DOCTYPE html>" client.html
+	@echo "<html>" >> client.html
+	@echo "<head>" >> client.html
+	@echo "  <title>NextCloud Desktop I2P</title>" >> client.html
+	@echo "  <link rel=\"stylesheet\" type=\"text/css\" href =\"home.css\" />" >> client.html
+	@echo "</head>" >> client.html
+	@echo "<body>" >> client.html
+	pandoc CLIENT.md | tee -a client.html
+	@echo "</body>" >> client.html
+	@echo "</html>" >> client.html
